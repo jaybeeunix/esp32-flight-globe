@@ -1,0 +1,8 @@
+# Optional Custom Airports File
+# Format: CODE, LATITUDE, LONGITUDE, NAME
+# Use this file to define private airfields, regional strips, or custom locations
+# that are not in the standard commercial IATA database.
+
+# Examples:
+# 1LL2, 40.1234, -88.1234, Private Strip
+# MYA, 42.0000, -87.8000, My Airstrip

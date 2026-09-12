@@ -1,0 +1,13 @@
+# My Flights List
+# Format: ORIGIN-DESTINATION (one pair per line)
+# Standard 3-letter IATA airport codes are supported (7,900+ global airports included).
+
+ORD-CMI
+CMI-ORD
+ORD-SFO
+SFO-HND
+HND-LHR
+LHR-JFK
+JFK-ORD
+LAX-ORD
+ORD-ATL
