@@ -8,7 +8,7 @@
 #define GT911_INT_PIN       16
 
 
-#define GT911_LCD_TOUCH_MAX_POINTS             (5)      
+#define GT911_LCD_TOUCH_MAX_POINTS             (5)
 /* GT911 registers */
 #define ESP_LCD_TOUCH_GT911_READ_XY_REG       (0x814E)
 #define ESP_LCD_TOUCH_GT911_CONFIG_REG        (0x8047)

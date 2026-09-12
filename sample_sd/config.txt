@@ -1,0 +1,3 @@
+# Configuration for ESP32 Flight Globe
+# Auto-cycle interval in seconds between routes (default: 10)
+cycle_time=10

@@ -19,6 +19,7 @@ LGFX_Sprite canvas;
 static int activeRouteIdx = 0;
 static uint32_t lastFrameMs = 0;
 static uint32_t lastTouchMs = 0;
+static uint32_t lastRouteSwitchMs = 0;
 static bool isDragging = false;
 static int16_t lastTouchX = 0;
 static int16_t touchStartX = 0;
@@ -59,7 +60,7 @@ void setup() {
         LCD_addWindow(0, 0, SCREEN_WIDTH - 1, SCREEN_HEIGHT - 1, (uint8_t*)canvas.getBuffer());
     }
 
-    // 4. Mount SD Card and load flights
+    // 4. Mount SD Card and load flights + config
     if (flightData.initSD()) {
         flightData.loadFlights("/flights.txt");
     } else {
@@ -76,7 +77,9 @@ void setup() {
 
     lastFrameMs = millis();
     lastTouchMs = millis();
-    Serial.println("[MAIN] Setup complete. Starting flight visualization loop!");
+    lastRouteSwitchMs = millis();
+    Serial.printf("[MAIN] Setup complete. Auto-cycling routes every %u seconds.\n",
+                  (unsigned int)flightData.getCycleIntervalSec());
 }
 
 void loop() {
@@ -84,6 +87,8 @@ void loop() {
     float dt = (now - lastFrameMs) / 1000.0f;
     lastFrameMs = now;
     if (dt <= 0.0f || dt > 0.2f) dt = 0.02f;
+
+    const auto& routes = flightData.getRoutes();
 
     // -------------------------------------------------------------
     // Touch Interaction Handling (GT911)
@@ -103,6 +108,7 @@ void loop() {
 
     if (touched) {
         lastTouchMs = now;
+        lastRouteSwitchMs = now; // Reset cycle timer on touch
 
         if (!isDragging) {
             isDragging = true;
@@ -126,19 +132,34 @@ void loop() {
             uint32_t holdTime = now - touchStartTime;
             int moveDist = std::abs(touchStartX - lastTouchX);
 
-            // Tap anywhere to advance to next flight route
+            // Tap anywhere to immediately advance to next flight route
             if (holdTime < 350 && moveDist < 15) {
-                const auto& routes = flightData.getRoutes();
                 if (!routes.empty()) {
                     activeRouteIdx = (activeRouteIdx + 1) % routes.size();
                     globe.centerOnRoute(routes[activeRouteIdx]);
+                    lastRouteSwitchMs = now;
                 }
             }
         }
 
-        // Resume auto-rotation after 6 seconds of inactivity
+        // Resume auto-rotation after 6 seconds of touch inactivity
         if (!globe.isAutoSpin() && (now - lastTouchMs > 6000)) {
             globe.setAutoSpin(true);
+        }
+
+        // -------------------------------------------------------------
+        // Automatic Route Cycle Timer
+        // -------------------------------------------------------------
+        uint32_t cycleIntervalMs = flightData.getCycleIntervalSec() * 1000;
+        if (cycleIntervalMs > 0 && !routes.empty()) {
+            // Only auto-cycle if user hasn't touched the screen in the last 4 seconds
+            if ((now - lastTouchMs > 4000) && (now - lastRouteSwitchMs >= cycleIntervalMs)) {
+                activeRouteIdx = (activeRouteIdx + 1) % routes.size();
+                globe.centerOnRoute(routes[activeRouteIdx]);
+                lastRouteSwitchMs = now;
+                Serial.printf("[MAIN] Auto-cycling to route #%d: %s\n",
+                              activeRouteIdx + 1, routes[activeRouteIdx].itinerary.c_str());
+            }
         }
     }
 

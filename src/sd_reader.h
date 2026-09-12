@@ -27,6 +27,9 @@ public:
     bool isSdMounted() const { return _sdMounted; }
     size_t getRouteCount() const { return _routes.size(); }
 
+    uint32_t getCycleIntervalSec() const { return _cycleIntervalSec; }
+    void setCycleIntervalSec(uint32_t sec) { _cycleIntervalSec = sec; }
+
     bool findAirport(const char* code, LatLon& outCoords, std::string& outName);
 
 private:
@@ -37,7 +40,9 @@ private:
     std::map<std::string, CustomAirport> _customAirports;
     float _totalDistanceNM;
     float _totalDistanceKM;
+    uint32_t _cycleIntervalSec;
 
+    void loadConfig(const char* filename = "/config.txt");
     void loadCustomAirports(const char* filename = "/airports.txt");
     void updateStats();
     bool parseLineToHops(const String& rawLine, std::vector<std::string>& outHops);

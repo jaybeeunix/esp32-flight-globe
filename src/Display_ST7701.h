@@ -20,14 +20,14 @@
 #include "Touch_GT911.h"
 
 #define LCD_CLK_PIN   2
-#define LCD_MOSI_PIN  1 
-#define LCD_Backlight_PIN   6 
-// Backlight   ledChannel：PWM Channe 
-#define PWM_Channel     1       // PWM Channel   
-#define Frequency       20000   // PWM frequencyconst        
+#define LCD_MOSI_PIN  1
+#define LCD_Backlight_PIN   6
+// Backlight   ledChannel：PWM Channe
+#define PWM_Channel     1       // PWM Channel
+#define Frequency       20000   // PWM frequencyconst
 #define Resolution      10       // PWM resolution ratio     MAX:13
-#define Dutyfactor      500     // PWM Dutyfactor      
-#define Backlight_MAX   100      
+#define Dutyfactor      500     // PWM Dutyfactor
+#define Backlight_MAX   100
 
 
 #define ESP_PANEL_LCD_WIDTH                       (480)
@@ -80,7 +80,7 @@
 
 
 extern uint8_t LCD_Backlight;
-extern esp_lcd_panel_handle_t panel_handle;   
+extern esp_lcd_panel_handle_t panel_handle;
 bool example_on_vsync_event(esp_lcd_panel_handle_t panel, const esp_lcd_rgb_panel_event_data_t *event_data, void *user_data);
 void ST7701_Init();
 
@@ -89,4 +89,4 @@ void LCD_addWindow(uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uint16_t Yen
 
 // backlight
 void Backlight_Init();
-void Set_Backlight(uint8_t Light);    
+void Set_Backlight(uint8_t Light);

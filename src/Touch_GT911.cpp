@@ -5,8 +5,8 @@ struct GT911_Touch touch_data = {0};
 bool I2C_Read_Touch(uint8_t Driver_addr, uint16_t Reg_addr, uint8_t *Reg_data, uint32_t Length)
 {
   Wire.beginTransmission(Driver_addr);
-  Wire.write((uint8_t)(Reg_addr >> 8)); 
-  Wire.write((uint8_t)Reg_addr);         
+  Wire.write((uint8_t)(Reg_addr >> 8));
+  Wire.write((uint8_t)Reg_addr);
   if ( Wire.endTransmission(true)){
     printf("The I2C transmission fails. - I2C Read\r\n");
     return false;
@@ -21,7 +21,7 @@ bool I2C_Write_Touch(uint8_t Driver_addr, uint16_t Reg_addr, const uint8_t *Reg_
 {
   Wire.beginTransmission(Driver_addr);
   Wire.write((uint8_t)(Reg_addr >> 8));
-  Wire.write((uint8_t)Reg_addr);        
+  Wire.write((uint8_t)Reg_addr);
   for (int i = 0; i < Length; i++) {
     Wire.write(*Reg_data++);
   }
@@ -38,23 +38,23 @@ uint8_t Touch_Init(void) {
   GT911_Touch_Reset();
   GT911_Read_cfg();
 
-  attachInterrupt(GT911_INT_PIN, Touch_GT911_ISR, interrupt); 
+  attachInterrupt(GT911_INT_PIN, Touch_GT911_ISR, interrupt);
 
   return true;
 }
 /* Reset controller */
 uint8_t GT911_Touch_Reset(void)
 {
-  pinMode(GT911_INT_PIN, OUTPUT);                   
-  digitalWrite(GT911_INT_PIN, LOW);                  
+  pinMode(GT911_INT_PIN, OUTPUT);
+  digitalWrite(GT911_INT_PIN, LOW);
 
   Set_EXIO(EXIO_PIN2,Low);
   vTaskDelay(pdMS_TO_TICKS(10));
   Set_EXIO(EXIO_PIN2,High);
   vTaskDelay(pdMS_TO_TICKS(200));
 
-  digitalWrite(GT911_INT_PIN, HIGH);                
-  pinMode(GT911_INT_PIN, INPUT);                     
+  digitalWrite(GT911_INT_PIN, HIGH);
+  pinMode(GT911_INT_PIN, INPUT);
 
   return true;
 }
@@ -75,7 +75,7 @@ uint8_t Touch_Read_Data(void) {
   uint8_t Over = 0xAB;
   size_t i = 0,num=0;
   I2C_Read_Touch(GT911_ADDR, ESP_LCD_TOUCH_GT911_READ_XY_REG, buf, 1);
-  if ((buf[0] & 0x80) == 0x00) {                                              
+  if ((buf[0] & 0x80) == 0x00) {
     I2C_Write_Touch(GT911_ADDR, ESP_LCD_TOUCH_GT911_READ_XY_REG, &clear, 1);  // No touch data
   } else {
     /* Count of touched points */
@@ -89,7 +89,7 @@ uint8_t Touch_Read_Data(void) {
     /* Clear all */
     I2C_Write_Touch(GT911_ADDR, ESP_LCD_TOUCH_GT911_READ_XY_REG, &clear, 1);
     // printf(" points=%d \r\n",touch_cnt);
-    noInterrupts(); 
+    noInterrupts();
 
     /* Number of touched points */
     if(touch_cnt > GT911_LCD_TOUCH_MAX_POINTS)
@@ -97,11 +97,11 @@ uint8_t Touch_Read_Data(void) {
     touch_data.points = (uint8_t)touch_cnt;
     /* Fill all coordinates */
     for (i = 0; i < touch_cnt; i++) {
-      touch_data.coords[i].x = (uint16_t)(((uint16_t)buf[(i * 8) + 3] << 8) + buf[(i * 8) + 2]);               
+      touch_data.coords[i].x = (uint16_t)(((uint16_t)buf[(i * 8) + 3] << 8) + buf[(i * 8) + 2]);
       touch_data.coords[i].y = (uint16_t)(((uint16_t)buf[(i * 8) + 5] << 8) + buf[(i * 8) + 4]);;
       touch_data.coords[i].strength = (uint16_t)(((uint16_t)buf[(i * 8) + 7] << 8) + buf[(i * 8) + 6]);
     }
-    interrupts(); 
+    interrupts();
     // printf(" points=%d \r\n",touch_data.points);
   }
   return true;
@@ -118,8 +118,8 @@ uint8_t Touch_Get_XY(uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *poin
   assert(y != NULL);
   assert(point_num != NULL);
   assert(max_point_num > 0);
-  
-  noInterrupts(); 
+
+  noInterrupts();
   /* Count of points */
   if(touch_data.points > max_point_num)
     touch_data.points = max_point_num;
@@ -133,7 +133,7 @@ uint8_t Touch_Get_XY(uint16_t *x, uint16_t *y, uint16_t *strength, uint8_t *poin
   *point_num = touch_data.points;
   /* Invalidate */
   touch_data.points = 0;
-  interrupts(); 
+  interrupts();
   return (*point_num > 0);
 }
 void example_touchpad_read(void){
