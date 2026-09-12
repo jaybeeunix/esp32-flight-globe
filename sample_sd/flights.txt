@@ -1,13 +1,9 @@
-# My Flights List
-# Format: ORIGIN-DESTINATION (one pair per line)
-# Standard 3-letter IATA airport codes are supported (7,900+ global airports included).
-
-ORD-CMI
-CMI-ORD
-ORD-SFO
-SFO-HND
-HND-LHR
-LHR-JFK
-JFK-ORD
-LAX-ORD
-ORD-ATL
+# Sample flights for ESP32 Flight Globe
+# Format: ORIGIN-FIRSTHOP-SECONDHOP-DESTINATION (one itinerary per line)
+BMI-DFW-HKG-DFW-BMI
+ORD-SFO-HND-LHR-ORD
+ORD-MIA-LIM-CUZ-LIM-ORD
+ORD-ZRH-NCE-ZRH-ORD
+ORD-DOH-KTM-DOH-ORD
+ORD-PHX-HNL-KOA-HNL-ORD
+LAX-SYD-CNS-SYD-LAX

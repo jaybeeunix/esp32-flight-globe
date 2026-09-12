@@ -1,6 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include <vector>
+#include <string>
 #include <cmath>
 
 struct LatLon {
@@ -31,7 +32,8 @@ struct Vec3 {
     }
 };
 
-struct FlightRoute {
+// A single hop/leg between two airports
+struct FlightLeg {
     char origin[4];
     char dest[4];
     LatLon originCoords;
@@ -39,6 +41,21 @@ struct FlightRoute {
     float distanceNM;
     float distanceKM;
     std::vector<Vec3> arcPoints;
+};
+
+// Full itinerary (multi-hop support)
+struct FlightRoute {
+    char origin[4];
+    char dest[4];
+    float distanceNM;
+    float distanceKM;
+    std::string itinerary;                // e.g. "BMI-DFW-HKG-DFW-BMI"
+    std::vector<std::string> stopCodes;   // e.g. ["BMI", "DFW", "HKG", "DFW", "BMI"]
+    std::vector<FlightLeg> legs;          // 1 or more legs connecting the stops
+    float totalDistanceNM;
+    float totalDistanceKM;
+
+    size_t legCount() const { return legs.size(); }
 };
 
 // Coordinate conversions

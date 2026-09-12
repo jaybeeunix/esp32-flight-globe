@@ -40,7 +40,7 @@ private:
 
     void loadCustomAirports(const char* filename = "/airports.txt");
     void updateStats();
-    bool parseLine(const String& line, String& outOrigin, String& outDest);
+    bool parseLineToHops(const String& rawLine, std::vector<std::string>& outHops);
 };
 
 extern FlightDataManager flightData;
