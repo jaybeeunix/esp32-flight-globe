@@ -9,6 +9,8 @@
 #include "sd_reader.h"
 #include "globe_renderer.h"
 
+#define APP_VERSION "v1.2"
+
 struct TouchPoint {
     int16_t x;
     int16_t y;
@@ -26,6 +28,50 @@ static int16_t touchStartX = 0;
 static int16_t touchStartY = 0;
 static uint32_t touchStartTime = 0;
 
+static void showSplashScreen() {
+    // Deep midnight space background
+    canvas.fillScreen(canvas.color565(8, 14, 26));
+
+    // Outer decorative celestial rings matching the round 480x480 screen
+    canvas.drawCircle(240, 240, 235, canvas.color565(25, 45, 80));
+    canvas.drawCircle(240, 240, 230, canvas.color565(18, 32, 60));
+    canvas.drawCircle(240, 240, 195, canvas.color565(15, 28, 50));
+
+    // Title: "Flights Globe"
+    canvas.setTextDatum(lgfx::textdatum::middle_center);
+    canvas.setTextSize(3);
+    // Subtle drop shadow
+    canvas.setTextColor(canvas.color565(0, 0, 0));
+    canvas.drawString("Flights Globe", 241, 161);
+    // Vibrant gold/amber title
+    canvas.setTextColor(canvas.color565(255, 215, 60));
+    canvas.drawString("Flights Globe", 240, 160);
+
+    // Decorative divider line
+    canvas.drawLine(150, 195, 330, 195, canvas.color565(40, 75, 130));
+    canvas.fillCircle(240, 195, 3, canvas.color565(255, 215, 60));
+
+    // Subtitle / Attributions
+    canvas.setTextSize(2);
+    canvas.setTextColor(canvas.color565(220, 230, 245));
+    canvas.drawString("Envisioned by", 240, 235);
+    canvas.setTextColor(canvas.color565(255, 255, 255));
+    canvas.drawString("Jason Burrell", 240, 265);
+
+    // Link
+    canvas.setTextSize(2);
+    canvas.setTextColor(canvas.color565(80, 175, 255)); // Soft electric cyan/blue
+    canvas.drawString("jaybeeunix.github.io", 240, 310);
+
+    // Version number below
+    canvas.setTextSize(1);
+    canvas.setTextColor(canvas.color565(110, 130, 160));
+    canvas.drawString(APP_VERSION, 240, 360);
+
+    // Push splash frame to display
+    LCD_addWindow(0, 0, SCREEN_WIDTH - 1, SCREEN_HEIGHT - 1, (uint8_t*)canvas.getBuffer());
+}
+
 void setup() {
     Serial.begin(115200);
     delay(200);
@@ -33,6 +79,7 @@ void setup() {
     Serial.println("==========================================");
     Serial.println(" Waveshare ESP32-S3 Flight Tracker Globe  ");
     Serial.println(" Target: ESP32-S3-Touch-LCD-2.8C (480x480)");
+    Serial.printf (" Version: %s\n", APP_VERSION);
     Serial.println("==========================================");
 
     // 1. Initialize Waveshare 2.8C I2C & IO Expander (TCA9554)
@@ -55,10 +102,11 @@ void setup() {
         Serial.println("[MAIN] Error: PSRAM 480x480 sprite allocation failed!");
     } else {
         Serial.printf("[MAIN] Full 480x480 canvas allocated in PSRAM (Free PSRAM: %u bytes)\n", (unsigned)ESP.getFreePsram());
-        // Initial clear
-        canvas.fillScreen(canvas.color565(8, 12, 22));
-        LCD_addWindow(0, 0, SCREEN_WIDTH - 1, SCREEN_HEIGHT - 1, (uint8_t*)canvas.getBuffer());
+        // Render splash screen immediately so user sees it right at power-on
+        showSplashScreen();
     }
+
+    uint32_t splashStartMs = millis();
 
     // 4. Mount SD Card and load flights + config
     if (flightData.initSD()) {
@@ -68,11 +116,16 @@ void setup() {
         flightData.loadDemoFlights();
     }
 
-    // 5. Initialize 3D Globe Raycasting Engine
+    // 5. Initialize 3D Globe Raycasting Engine (LUT precomputation)
     globe.init();
     const auto& routes = flightData.getRoutes();
     if (!routes.empty()) {
         globe.centerOnRoute(routes[0]);
+    }
+
+    // Ensure splash screen remains visible for at least 2.5 seconds total
+    while (millis() - splashStartMs < 2500) {
+        delay(20);
     }
 
     lastFrameMs = millis();
