@@ -126,7 +126,8 @@ void GlobeRenderer::update(float dt) {
       diff += 360.0f;
 
     if (std::abs(diff) > 0.1f) {
-      _currentLonDeg += diff * std::min(1.0f, dt * 6.0f);
+      // Faster, crisp glide toward centered route
+      _currentLonDeg += diff * std::min(1.0f, dt * 7.5f);
       while (_currentLonDeg < -180.0f)
         _currentLonDeg += 360.0f;
       while (_currentLonDeg > 180.0f)
@@ -159,20 +160,34 @@ void GlobeRenderer::spinBy(float deltaDeg) {
 void GlobeRenderer::centerOnRoute(const FlightRoute &route) {
   if (route.legs.empty())
     return;
-  // Calculate average longitude and 3D centroid of all stops
+
+  // Compute 3D centroid across all points along all legs of the flight path
   float sumX = 0, sumZ = 0;
+  size_t ptCount = 0;
+
   for (const auto &leg : route.legs) {
-    Vec3 v1 = latLonToVec3(leg.originCoords.lat, leg.originCoords.lon);
-    Vec3 v2 = latLonToVec3(leg.destCoords.lat, leg.destCoords.lon);
-    sumX += v1.x + v2.x;
-    sumZ += v1.z + v2.z;
+    if (!leg.arcPoints.empty()) {
+      for (const auto &pt : leg.arcPoints) {
+        sumX += pt.x;
+        sumZ += pt.z;
+        ptCount++;
+      }
+    } else {
+      Vec3 v1 = latLonToVec3(leg.originCoords.lat, leg.originCoords.lon);
+      Vec3 v2 = latLonToVec3(leg.destCoords.lat, leg.destCoords.lon);
+      sumX += v1.x + v2.x;
+      sumZ += v1.z + v2.z;
+      ptCount += 2;
+    }
   }
-  if (std::abs(sumX) > 1e-4f || std::abs(sumZ) > 1e-4f) {
+
+  if (ptCount > 0 && (std::abs(sumX) > 1e-4f || std::abs(sumZ) > 1e-4f)) {
     float avgLon = std::atan2(sumX, sumZ) * RAD_TO_DEG_F;
     _targetLonDeg = avgLon;
   } else {
     _targetLonDeg = route.legs[0].originCoords.lon;
   }
+
   _autoSpin = false;
 }
 

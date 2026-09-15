@@ -9,7 +9,7 @@
 #include "sd_reader.h"
 #include "globe_renderer.h"
 
-#define APP_VERSION "v1.2"
+#define APP_VERSION "v1.3"
 
 struct TouchPoint {
     int16_t x;
@@ -195,8 +195,8 @@ void loop() {
             }
         }
 
-        // Resume auto-rotation after 6 seconds of touch inactivity
-        if (!globe.isAutoSpin() && (now - lastTouchMs > 6000)) {
+        // Resume auto-rotation after 6 seconds of inactivity since route switch or touch
+        if (!globe.isAutoSpin() && (now - lastTouchMs > 6000) && (now - lastRouteSwitchMs > 6000)) {
             globe.setAutoSpin(true);
         }
 
