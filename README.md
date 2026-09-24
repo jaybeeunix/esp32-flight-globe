@@ -202,4 +202,4 @@ python3 tools/generate_earth_texture.py
 - **Map Data**: [Natural Earth](https://www.naturalearthdata.com/) (Public Domain vector map data)
 - **Airport Database**: [mwgg/Airports](https://github.com/mwgg/Airports) (MIT License)
 
-Distributed under the GNU General Public License v3.0 (GPL-3.0). See [LICENSE](file:///home/jason/google-drive/work/workspace/ai/dot-gemini/antigravity/scratch/esp32-flight-globe/LICENSE) for full details.
+Distributed under the GNU General Public License v3.0 (GPL-3.0). See [LICENSE](LICENSE) for full details.
